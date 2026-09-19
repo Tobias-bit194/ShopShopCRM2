@@ -4,6 +4,7 @@ import {
   ShoppingCartOutlined,
   TeamOutlined,
   TagsOutlined,
+  TrademarkOutlined,
   ShoppingOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -34,6 +35,11 @@ const menuItems = [
     label: "Categories",
     path: "/categories",
     icon: <TagsOutlined />,
+  },
+    {
+    label: "Brands",
+    path: "/brands",
+    icon: <TrademarkOutlined />,
   },
   {
     label: "Products",

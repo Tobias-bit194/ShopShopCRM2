@@ -11,6 +11,7 @@ import ProductsPage from "../features/products/pages/ProductsPage";
 import CustomersPage from "../features/customers/pages/CustomersPage";
 import CustomerDetailsPage from "../features/customers/pages/CustomerDetailsPage";
 import OrdersPage from "../features/orders/pages/OrdersPage";
+import BrandsPage from "../features/brands/pages/BrandsPage";
 
 const router = createBrowserRouter([
   // Auth
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <OrdersPage />,
+      },
+      {
+        path: "brands",
+        element: <BrandsPage />,
       },
       {
         path: "customers",
