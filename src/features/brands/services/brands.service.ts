@@ -2,13 +2,26 @@ import api from "../../../services/api";
 
 import type {
   Brand,
+  BrandDetailsResponse,
   BrandPayload,
   BrandsResponse,
 } from "../types/brands.types";
-
 // GET all brands
 export const getBrands = async (): Promise<BrandsResponse> => {
   const response = await api.get<BrandsResponse>("/admin/brands");
+
+  return response.data;
+};
+
+
+// GET brand by ID
+export const getBrandById = async (
+  id: string,
+): Promise<BrandDetailsResponse> => {
+  const response =
+    await api.get<BrandDetailsResponse>(
+      `/admin/brands/${id}`,
+    );
 
   return response.data;
 };
@@ -44,3 +57,6 @@ export const deleteBrand = async (
 ): Promise<void> => {
   await api.delete(`/admin/brands/${id}`);
 };
+
+
+

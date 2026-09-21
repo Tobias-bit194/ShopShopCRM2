@@ -8,6 +8,8 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+
 import type {
   Brand,
   BrandsMeta,
@@ -28,6 +30,8 @@ const BrandsTable = ({
   onEdit,
   onDelete,
 }: BrandsTableProps) => {
+  const navigate = useNavigate();
+
   return (
     <div
       className="
@@ -49,7 +53,10 @@ const BrandsTable = ({
           </h2>
 
           <p className="mt-1 text-[11px] text-[#98A2B3] dark:text-gray-500">
-            {meta.total} {meta.total === 1 ? "brand" : "brands"}
+            {meta.total}{" "}
+            {meta.total === 1
+              ? "brand"
+              : "brands"}
           </p>
         </div>
 
@@ -120,6 +127,7 @@ const BrandsTable = ({
               className="
                 bg-[#F2F7F4]
                 text-xs text-[#667085]
+
                 dark:bg-gray-800
                 dark:text-gray-300
               "
@@ -177,9 +185,17 @@ const BrandsTable = ({
               brands.map((brand, index) => (
                 <tr
                   key={brand.id}
+                  onClick={() =>
+                    navigate(
+                      `/brands/${brand.id}`,
+                    )
+                  }
                   className="
+                    cursor-pointer
                     transition-colors
+
                     hover:bg-[#F8FAF9]
+
                     dark:hover:bg-gray-800/50
                   "
                 >
@@ -189,6 +205,9 @@ const BrandsTable = ({
                       <input
                         type="checkbox"
                         className="accent-[#48A375]"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
                       />
 
                       <span className="text-xs text-[#667085] dark:text-gray-400">
@@ -202,9 +221,11 @@ const BrandsTable = ({
                     <div className="flex items-center gap-3">
                       <div
                         className="
-                          flex h-10 w-10 shrink-0
+                          flex h-10 w-10
+                          shrink-0
                           items-center justify-center
-                          overflow-hidden rounded-xl
+                          overflow-hidden
+                          rounded-xl
                           border border-[#EAECF0]
                           bg-[#F8FAF9]
 
@@ -216,7 +237,10 @@ const BrandsTable = ({
                           <img
                             src={brand.logo}
                             alt={brand.name}
-                            className="h-full w-full object-contain p-1"
+                            className="
+                              h-full w-full
+                              object-contain p-1
+                            "
                           />
                         ) : (
                           <ImageIcon
@@ -236,9 +260,11 @@ const BrandsTable = ({
                   <td className="px-4 py-3">
                     <span
                       className="
-                        rounded-md bg-[#F2F4F7]
+                        rounded-md
+                        bg-[#F2F4F7]
                         px-2 py-1
-                        text-[11px] font-medium
+                        text-[11px]
+                        font-medium
                         text-[#667085]
 
                         dark:bg-gray-800
@@ -252,7 +278,8 @@ const BrandsTable = ({
                   {/* Description */}
                   <td className="max-w-[280px] px-4 py-3">
                     <p className="truncate text-xs text-[#667085] dark:text-gray-400">
-                      {brand.description || "No description"}
+                      {brand.description ||
+                        "No description"}
                     </p>
                   </td>
 
@@ -267,21 +294,26 @@ const BrandsTable = ({
                   <td className="px-4 py-3">
                     <span
                       className={`
-                        inline-flex items-center gap-1.5
-                        rounded-full px-2.5 py-1
-                        text-[10px] font-semibold
+                        inline-flex
+                        items-center gap-1.5
+                        rounded-full
+                        px-2.5 py-1
+                        text-[10px]
+                        font-semibold
 
                         ${
                           brand.isActive
                             ? `
                               bg-emerald-50
                               text-emerald-600
+
                               dark:bg-emerald-950/40
                               dark:text-emerald-400
                             `
                             : `
                               bg-gray-100
                               text-gray-500
+
                               dark:bg-gray-800
                               dark:text-gray-400
                             `
@@ -290,7 +322,9 @@ const BrandsTable = ({
                     >
                       <span
                         className={`
-                          h-1.5 w-1.5 rounded-full
+                          h-1.5 w-1.5
+                          rounded-full
+
                           ${
                             brand.isActive
                               ? "bg-emerald-500"
@@ -299,21 +333,29 @@ const BrandsTable = ({
                         `}
                       />
 
-                      {brand.isActive ? "Active" : "Inactive"}
+                      {brand.isActive
+                        ? "Active"
+                        : "Inactive"}
                     </span>
                   </td>
 
                   {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      {/* Edit */}
                       <button
                         type="button"
                         title="Edit"
-                        onClick={() => onEdit(brand)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onEdit(brand);
+                        }}
                         className="
-                          cursor-pointer rounded-lg p-2
+                          cursor-pointer
+                          rounded-lg p-2
                           text-[#98A2B3]
                           transition
+
                           hover:bg-[#F2F4F7]
                           hover:text-[#344054]
 
@@ -324,14 +366,20 @@ const BrandsTable = ({
                         <Edit2 size={14} />
                       </button>
 
+                      {/* Delete */}
                       <button
                         type="button"
                         title="Delete"
-                        onClick={() => onDelete(brand)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onDelete(brand);
+                        }}
                         className="
-                          cursor-pointer rounded-lg p-2
+                          cursor-pointer
+                          rounded-lg p-2
                           text-[#98A2B3]
                           transition
+
                           hover:bg-red-50
                           hover:text-red-500
 
@@ -356,6 +404,7 @@ const BrandsTable = ({
           flex items-center justify-between
           border-t border-[#EAECF0]
           pt-5
+
           dark:border-gray-800
         "
       >
@@ -363,11 +412,16 @@ const BrandsTable = ({
           type="button"
           disabled={meta.page <= 1}
           className="
-            flex cursor-pointer items-center gap-1
-            rounded-xl border border-[#EAECF0]
+            flex cursor-pointer
+            items-center gap-1
+            rounded-xl
+            border border-[#EAECF0]
             px-4 py-2
-            text-xs font-semibold text-[#667085]
-            transition hover:bg-[#F8FAF9]
+            text-xs font-semibold
+            text-[#667085]
+            transition
+
+            hover:bg-[#F8FAF9]
 
             disabled:cursor-not-allowed
             disabled:opacity-40
@@ -382,18 +436,26 @@ const BrandsTable = ({
         </button>
 
         <span className="text-xs font-medium text-[#98A2B3] dark:text-gray-500">
-          Page {meta.page} of {meta.totalPages || 1}
+          Page {meta.page} of{" "}
+          {meta.totalPages || 1}
         </span>
 
         <button
           type="button"
-          disabled={meta.page >= meta.totalPages}
+          disabled={
+            meta.page >= meta.totalPages
+          }
           className="
-            flex cursor-pointer items-center gap-1
-            rounded-xl border border-[#EAECF0]
+            flex cursor-pointer
+            items-center gap-1
+            rounded-xl
+            border border-[#EAECF0]
             px-4 py-2
-            text-xs font-semibold text-[#667085]
-            transition hover:bg-[#F8FAF9]
+            text-xs font-semibold
+            text-[#667085]
+            transition
+
+            hover:bg-[#F8FAF9]
 
             disabled:cursor-not-allowed
             disabled:opacity-40

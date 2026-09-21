@@ -35,3 +35,23 @@ export interface BrandPayload {
   logo: string;
   isActive: boolean;
 }
+
+export interface BrandProduct {
+  id: string;
+  name?: string;
+  slug?: string;
+  price?: number;
+  image?: string | null;
+  isActive?: boolean;
+
+  [key: string]: unknown;
+}
+
+export interface BrandDetails extends Brand {
+  products: BrandProduct[];
+}
+
+export interface BrandDetailsResponse {
+  success: boolean;
+  data: BrandDetails;
+}

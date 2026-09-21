@@ -1,4 +1,5 @@
 import { Image as ImageIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import type { Brand } from "../../types/brands.types";
 
@@ -13,6 +14,8 @@ const BrandsGrid = ({
   isLoading,
   error,
 }: BrandsGridProps) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <div className="rounded-2xl border border-[#EAECF0] bg-white p-8 text-center text-xs text-[#98A2B3] dark:border-gray-800 dark:bg-gray-900">
@@ -42,10 +45,16 @@ const BrandsGrid = ({
       {brands.slice(0, 8).map((brand) => (
         <div
           key={brand.id}
+          onClick={() =>
+            navigate(`/brands/${brand.id}`)
+          }
           className="
-            group flex items-center gap-4
-            rounded-2xl border border-[#EAECF0]
-            bg-white p-4 shadow-sm
+            group flex cursor-pointer
+            items-center gap-4
+            rounded-2xl
+            border border-[#EAECF0]
+            bg-white p-4
+            shadow-sm
             transition-all duration-200
 
             hover:-translate-y-0.5
@@ -60,9 +69,11 @@ const BrandsGrid = ({
           {/* Logo */}
           <div
             className="
-              flex h-14 w-14 shrink-0
+              flex h-14 w-14
+              shrink-0
               items-center justify-center
-              overflow-hidden rounded-xl
+              overflow-hidden
+              rounded-xl
               border border-[#EAECF0]
               bg-[#F8FAF9]
 
@@ -74,12 +85,18 @@ const BrandsGrid = ({
               <img
                 src={brand.logo}
                 alt={brand.name}
-                className="h-full w-full object-contain p-1"
+                className="
+                  h-full w-full
+                  object-contain p-1
+                "
               />
             ) : (
               <ImageIcon
                 size={23}
-                className="text-[#98A2B3] dark:text-gray-500"
+                className="
+                  text-[#98A2B3]
+                  dark:text-gray-500
+                "
               />
             )}
           </div>
@@ -89,11 +106,13 @@ const BrandsGrid = ({
             <div className="flex items-center gap-2">
               <h3
                 className="
-                  truncate text-sm font-bold
+                  truncate
+                  text-sm font-bold
                   text-[#344054]
                   transition-colors
 
                   group-hover:text-[#48A375]
+
                   dark:text-gray-100
                   dark:group-hover:text-emerald-400
                 "
@@ -101,31 +120,53 @@ const BrandsGrid = ({
                 {brand.name}
               </h3>
 
+              {/* Status */}
               <span
                 className={`
-                  h-2 w-2 shrink-0 rounded-full
+                  h-2 w-2
+                  shrink-0
+                  rounded-full
+
                   ${
                     brand.isActive
                       ? "bg-[#48A375]"
                       : "bg-[#98A2B3]"
                   }
                 `}
-                title={brand.isActive ? "Active" : "Inactive"}
+                title={
+                  brand.isActive
+                    ? "Active"
+                    : "Inactive"
+                }
               />
             </div>
 
+            {/* Description */}
             <p
               className="
-                mt-1 line-clamp-2
-                text-[11px] leading-4
+                mt-1
+                line-clamp-2
+                text-[11px]
+                leading-4
                 text-[#98A2B3]
+
                 dark:text-gray-500
               "
             >
-              {brand.description || "No description"}
+              {brand.description ||
+                "No description"}
             </p>
 
-            <p className="mt-2 text-[10px] text-[#98A2B3] dark:text-gray-500">
+            {/* Products */}
+            <p
+              className="
+                mt-2
+                text-[10px]
+                text-[#98A2B3]
+
+                dark:text-gray-500
+              "
+            >
               {brand._count.products}{" "}
               {brand._count.products === 1
                 ? "product"
