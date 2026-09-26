@@ -125,7 +125,7 @@ const Sidebar = () => {
                 dark:text-emerald-400
               "
             >
-              ShopCRM
+              DEALP <ShoppingCartOutlined/>RT
             </h1>
 
             <p
