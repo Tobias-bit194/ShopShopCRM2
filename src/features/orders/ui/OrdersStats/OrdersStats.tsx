@@ -1,37 +1,69 @@
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  MoreVertical,
-} from "lucide-react";
+import { MoreVertical } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total Orders",
-    value: "1,240",
-    change: "14.4%",
-    trend: "up" as const,
-  },
-  {
-    title: "New Orders",
-    value: "240",
-    change: "20%",
-    trend: "up" as const,
-  },
-  {
-    title: "Completed Orders",
-    value: "960",
-    change: "85%",
-    trend: "neutral" as const,
-  },
-  {
-    title: "Canceled Orders",
-    value: "87",
-    change: "5%",
-    trend: "down" as const,
-  },
-];
+import type {
+  Order,
+  OrderStatus,
+} from "../../types/orders.types";
 
-const OrdersStats = () => {
+interface OrdersStatsProps {
+  orders: Order[];
+  isLoading: boolean;
+}
+
+interface StatItem {
+  title: string;
+  value: number;
+  status?: OrderStatus;
+}
+
+const OrdersStats = ({
+  orders,
+  isLoading,
+}: OrdersStatsProps) => {
+  const stats: StatItem[] = [
+    {
+      title: "Total Orders",
+      value: orders.length,
+    },
+    {
+      title: "Pending Orders",
+      value: orders.filter(
+        (order) => order.status === "PENDING",
+      ).length,
+      status: "PENDING",
+    },
+    {
+      title: "Completed Orders",
+      value: orders.filter(
+        (order) => order.status === "DELIVERED",
+      ).length,
+      status: "DELIVERED",
+    },
+    {
+      title: "Canceled Orders",
+      value: orders.filter(
+        (order) => order.status === "CANCELLED",
+      ).length,
+      status: "CANCELLED",
+    },
+  ];
+
+  const getValueClass = (status?: OrderStatus) => {
+    switch (status) {
+      case "PENDING":
+        return "text-amber-500 dark:text-amber-400";
+
+      case "DELIVERED":
+        return "text-emerald-600 dark:text-emerald-400";
+
+      case "CANCELLED":
+        return "text-rose-500 dark:text-rose-400";
+
+      default:
+        return "text-gray-900 dark:text-white";
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
@@ -66,37 +98,17 @@ const OrdersStats = () => {
             </button>
           </div>
 
-          <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-gray-900 dark:text-white">
-              {stat.value}
-            </span>
-
-            <span
-              className={`
-                flex items-center
-                text-sm font-medium
-
-                ${
-                  stat.trend === "down"
-                    ? "text-rose-500 dark:text-rose-400"
-                    : "text-emerald-600 dark:text-emerald-400"
-                }
-              `}
-            >
-              {stat.trend === "up" && (
-                <ArrowUpRight size={16} />
-              )}
-
-              {stat.trend === "down" && (
-                <ArrowDownRight size={16} />
-              )}
-
-              {stat.change}
-            </span>
-          </div>
+          <span
+            className={`
+              text-3xl font-bold
+              ${getValueClass(stat.status)}
+            `}
+          >
+            {isLoading ? "..." : stat.value}
+          </span>
 
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-            Last 7 days
+            Current orders
           </p>
         </div>
       ))}

@@ -3,44 +3,27 @@ import {
   ArrowUpOutlined,
 } from "@ant-design/icons";
 
-type CountrySale = {
-  country: string;
-  flag: string;
-  sales: string;
-  progress: number;
-  change: number;
+import type { SalesByCountryItem } from "../../types/dashboard.types";
+
+interface SalesByCountryProps {
+  data: SalesByCountryItem[];
+}
+
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
 };
 
-const countries: CountrySale[] = [
-  {
-    country: "United States",
-    flag: "🇺🇸",
-    sales: "30K",
-    progress: 80,
-    change: 25.8,
-  },
-  {
-    country: "Brazil",
-    flag: "🇧🇷",
-    sales: "30K",
-    progress: 60,
-    change: -15.8,
-  },
-  {
-    country: "Australia",
-    flag: "🇦🇺",
-    sales: "25K",
-    progress: 70,
-    change: 35.8,
-  },
-];
-
-const SalesByCountry = () => {
+const SalesByCountry = ({
+  data,
+}: SalesByCountryProps) => {
   return (
     <div className="border-t border-[#EAECF0] px-5 py-5 dark:border-gray-800">
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-sm font-bold text-[#1D2939] dark:text-white">
-          Sales by Country
+          Sales by Region
         </h3>
 
         <span className="text-xs text-[#98A2B3] dark:text-gray-500">
@@ -49,26 +32,42 @@ const SalesByCountry = () => {
       </div>
 
       <div className="space-y-5">
-        {countries.map((item) => {
-          const isPositive = item.change >= 0;
+        {data.map((item) => {
+          const isPositive =
+            item.changePercent >= 0;
 
           return (
             <div
-              key={item.country}
+              key={item.code}
               className="flex items-center justify-between gap-4"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="text-xl">
-                  {item.flag}
-                </span>
+                {/* Region code */}
+                <div
+                  className="
+                    flex h-8 w-8 shrink-0
+                    items-center justify-center
+                    rounded-lg
+                    bg-[#EAF7F0]
+                    text-[10px] font-bold
+                    text-[#3F9F6F]
+
+                    dark:bg-emerald-950/40
+                    dark:text-emerald-400
+                  "
+                >
+                  {item.code}
+                </div>
 
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-[#344054] dark:text-gray-200">
-                    {item.sales}
+                    {formatNumber(
+                      item.sales,
+                    )}
                   </p>
 
                   <p className="truncate text-[10px] text-[#98A2B3]">
-                    {item.country}
+                    {item.name}
                   </p>
                 </div>
               </div>
@@ -76,15 +75,26 @@ const SalesByCountry = () => {
               <div className="flex items-center gap-3">
                 <div className="hidden h-1.5 w-20 overflow-hidden rounded-full bg-[#F2F4F7] sm:block dark:bg-gray-800">
                   <div
-                    style={{ width: `${item.progress}%` }}
-                    className="h-full rounded-full bg-[#4CAF7A]"
+                    style={{
+                      width: `${Math.min(
+                        Math.max(
+                          item.share,
+                          0,
+                        ),
+                        100,
+                      )}%`,
+                    }}
+                    className="h-full rounded-full bg-[#4CAF7A] transition-all duration-500"
                   />
                 </div>
 
                 <span
                   className={`
-                    flex min-w-[58px] items-center justify-end
-                    gap-1 text-[11px] font-semibold
+                    flex min-w-[58px]
+                    items-center justify-end
+                    gap-1 text-[11px]
+                    font-semibold
+
                     ${
                       isPositive
                         ? "text-[#3F9F6F]"
@@ -98,7 +108,10 @@ const SalesByCountry = () => {
                     <ArrowDownOutlined />
                   )}
 
-                  {Math.abs(item.change)}%
+                  {Math.abs(
+                    item.changePercent,
+                  )}
+                  %
                 </span>
               </div>
             </div>
@@ -109,13 +122,17 @@ const SalesByCountry = () => {
       <button
         type="button"
         className="
-          mt-6 w-full cursor-pointer rounded-full
+          mt-6 w-full cursor-pointer
+          rounded-full
           border border-[#DDE7E1]
-          py-2.5 text-xs font-semibold
+          py-2.5 text-xs
+          font-semibold
           text-[#3F9F6F]
           transition
+
           hover:border-[#4CAF7A]
           hover:bg-[#EAF7F0]
+
           dark:border-gray-800
           dark:hover:bg-emerald-950/30
         "

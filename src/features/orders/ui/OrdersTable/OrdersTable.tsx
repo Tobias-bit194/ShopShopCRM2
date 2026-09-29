@@ -1,128 +1,30 @@
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
+
 import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
   Filter,
+  Image as ImageIcon,
   MoreHorizontal,
   Search,
 } from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
 
 import type {
   Order,
   OrderStatus,
 } from "../../types/orders.types";
 
-/* =========================
-   MOCK DATA
-========================= */
-
-const mockOrders: Order[] = [
-  {
-    id: "#ORD0001",
-    product: "Wireless Bluetooth Headphones",
-    date: "01-01-2025",
-    price: 49.99,
-    paymentStatus: "Paid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100",
-  },
-  {
-    id: "#ORD0002",
-    product: "Men's T-Shirt",
-    date: "01-01-2025",
-    price: 14.99,
-    paymentStatus: "Unpaid",
-    status: "Pending",
-    image:
-      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100",
-  },
-  {
-    id: "#ORD0003",
-    product: "Men's Leather Wallet",
-    date: "01-01-2025",
-    price: 49.99,
-    paymentStatus: "Paid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1627123424574-724758594e93?w=100",
-  },
-  {
-    id: "#ORD0004",
-    product: "Memory Foam Pillow",
-    date: "01-01-2025",
-    price: 39.99,
-    paymentStatus: "Paid",
-    status: "Shipped",
-    image:
-      "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=100",
-  },
-  {
-    id: "#ORD0005",
-    product: "Adjustable Dumbbells",
-    date: "01-01-2025",
-    price: 14.99,
-    paymentStatus: "Unpaid",
-    status: "Pending",
-    image:
-      "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=100",
-  },
-  {
-    id: "#ORD0006",
-    product: "Coffee Maker",
-    date: "01-01-2025",
-    price: 79.99,
-    paymentStatus: "Unpaid",
-    status: "Cancelled",
-    image:
-      "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=100",
-  },
-  {
-    id: "#ORD0007",
-    product: "Casual Baseball Cap",
-    date: "01-01-2025",
-    price: 49.99,
-    paymentStatus: "Paid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=100",
-  },
-  {
-    id: "#ORD0008",
-    product: "Full HD Webcam",
-    date: "01-01-2025",
-    price: 39.99,
-    paymentStatus: "Paid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=100",
-  },
-  {
-    id: "#ORD0009",
-    product: "Smart LED Color Bulb",
-    date: "01-01-2025",
-    price: 79.99,
-    paymentStatus: "Unpaid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1550985616-11610c812251?w=100",
-  },
-  {
-    id: "#ORD0010",
-    product: "Men's T-Shirt",
-    date: "01-01-2025",
-    price: 14.99,
-    paymentStatus: "Unpaid",
-    status: "Delivered",
-    image:
-      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100",
-  },
-];
-
-/* =========================
-   FILTER TYPES
-========================= */
+interface OrdersTableProps {
+  orders: Order[];
+  isLoading: boolean;
+  error: string | null;
+}
 
 type OrderFilter =
   | "All"
@@ -137,36 +39,25 @@ const filters: OrderFilter[] = [
   "Canceled",
 ];
 
-/* =========================
-   HELPERS
-========================= */
-
 const getStatusClass = (
   status: OrderStatus,
 ) => {
   switch (status) {
-    case "Delivered":
+    case "DELIVERED":
       return `
         bg-emerald-50 text-emerald-600
         dark:bg-emerald-950/50
         dark:text-emerald-400
       `;
 
-    case "Pending":
+    case "PENDING":
       return `
         bg-amber-50 text-amber-500
         dark:bg-amber-950/50
         dark:text-amber-400
       `;
 
-    case "Shipped":
-      return `
-        bg-blue-50 text-blue-600
-        dark:bg-blue-950/50
-        dark:text-blue-400
-      `;
-
-    case "Cancelled":
+    case "CANCELLED":
       return `
         bg-rose-50 text-rose-500
         dark:bg-rose-950/50
@@ -182,11 +73,45 @@ const getStatusClass = (
   }
 };
 
-/* =========================
-   COMPONENT
-========================= */
+const getStatusLabel = (
+  status: OrderStatus,
+) => {
+  switch (status) {
+    case "DELIVERED":
+      return "Delivered";
 
-const OrdersTable = () => {
+    case "PENDING":
+      return "Pending";
+
+    case "CANCELLED":
+      return "Cancelled";
+
+    default:
+      return status;
+  }
+};
+
+const formatPrice = (value: number) => {
+  return new Intl.NumberFormat("en-US").format(value);
+};
+
+const formatDate = (value: string) => {
+  const date = new Date(value);
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+};
+
+const OrdersTable = ({
+  orders,
+  isLoading,
+  error,
+}: OrdersTableProps) => {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
 
   const [activeFilter, setActiveFilter] =
@@ -197,50 +122,65 @@ const OrdersTable = () => {
 
   const pageSize = 10;
 
-  /* =========================
-     FILTER ORDERS
-  ========================= */
-
+  // FILTER ORDERS
   const filteredOrders = useMemo(() => {
     const query = search
       .trim()
       .toLowerCase();
 
-    return mockOrders.filter((order) => {
+    return orders.filter((order) => {
+      const customerName = `
+        ${order.customerSnapshot.firstName}
+        ${order.customerSnapshot.lastName}
+      `.toLowerCase();
+
+      const matchesProduct = order.items.some(
+        (item) =>
+          item.productName
+            .toLowerCase()
+            .includes(query),
+      );
+
       const matchesSearch =
         !query ||
-        order.id
+        order.orderNumber
           .toLowerCase()
           .includes(query) ||
-        order.product
+        customerName.includes(query) ||
+        order.customerSnapshot.phone
           .toLowerCase()
-          .includes(query);
+          .includes(query) ||
+        order.customerSnapshot.email
+          .toLowerCase()
+          .includes(query) ||
+        matchesProduct;
 
       let matchesStatus = true;
 
       if (activeFilter === "Completed") {
         matchesStatus =
-          order.status === "Delivered";
+          order.status === "DELIVERED";
       }
 
       if (activeFilter === "Pending") {
         matchesStatus =
-          order.status === "Pending";
+          order.status === "PENDING";
       }
 
       if (activeFilter === "Canceled") {
         matchesStatus =
-          order.status === "Cancelled";
+          order.status === "CANCELLED";
       }
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, activeFilter]);
+  }, [
+    orders,
+    search,
+    activeFilter,
+  ]);
 
-  /* =========================
-     PAGINATION
-  ========================= */
-
+  // PAGINATION
   const totalPages = Math.max(
     1,
     Math.ceil(
@@ -259,26 +199,21 @@ const OrdersTable = () => {
       safeCurrentPage * pageSize,
     );
 
-  /* =========================
-     COUNTS
-  ========================= */
+  // COUNTS
+  const completedCount = orders.filter(
+    (order) =>
+      order.status === "DELIVERED",
+  ).length;
 
-  const completedCount =
-    mockOrders.filter(
-      (order) =>
-        order.status === "Delivered",
-    ).length;
+  const pendingCount = orders.filter(
+    (order) =>
+      order.status === "PENDING",
+  ).length;
 
-  const pendingCount =
-    mockOrders.filter(
-      (order) => order.status === "Pending",
-    ).length;
-
-  const canceledCount =
-    mockOrders.filter(
-      (order) =>
-        order.status === "Cancelled",
-    ).length;
+  const canceledCount = orders.filter(
+    (order) =>
+      order.status === "CANCELLED",
+  ).length;
 
   const getFilterCount = (
     filter: OrderFilter,
@@ -294,13 +229,9 @@ const OrdersTable = () => {
         return canceledCount;
 
       default:
-        return mockOrders.length;
+        return orders.length;
     }
   };
-
-  /* =========================
-     FILTER CHANGE
-  ========================= */
 
   const handleFilterChange = (
     filter: OrderFilter,
@@ -309,16 +240,49 @@ const OrdersTable = () => {
     setCurrentPage(1);
   };
 
-  /* =========================
-     SEARCH
-  ========================= */
-
   const handleSearch = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setSearch(event.target.value);
     setCurrentPage(1);
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className="
+          rounded-2xl border border-gray-200
+          bg-white p-12
+          text-center text-xs text-gray-400
+          shadow-sm
+
+          dark:border-gray-800
+          dark:bg-gray-900
+          dark:text-gray-500
+        "
+      >
+        Loading orders...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="
+          rounded-2xl border border-red-200
+          bg-red-50 p-12
+          text-center text-xs text-red-500
+
+          dark:border-red-900
+          dark:bg-red-950/30
+          dark:text-red-400
+        "
+      >
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -333,83 +297,98 @@ const OrdersTable = () => {
         dark:bg-gray-900
       "
     >
-      {/* =====================
-          TOOLBAR
-      ====================== */}
-
+      {/* TOOLBAR */}
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         {/* Filters */}
+        {/* Filters */}
+<div
+  className="
+    relative flex w-full items-center
+    rounded-xl
+    bg-emerald-100/60
+    p-1
 
-        <div
-          className="
-            flex w-full items-center gap-1
-            overflow-x-auto
-            rounded-xl
-            bg-emerald-100/60
-            p-1
+    md:w-[420px]
 
-            md:w-auto
+    dark:bg-emerald-950/40
+  "
+>
+  {/* Sliding bubble */}
+  <div
+    className="
+      absolute bottom-1 top-1
+      rounded-lg
+      bg-white
+      shadow-sm
 
-            dark:bg-emerald-950/40
-          "
-        >
-          {filters.map((filter) => {
-            const isActive =
-              activeFilter === filter;
+      transition-all
+      duration-300
+      ease-in-out
 
-            return (
-              <button
-                key={filter}
-                type="button"
-                onClick={() =>
-                  handleFilterChange(filter)
-                }
-                className={`
-                  whitespace-nowrap
-                  rounded-lg px-4 py-2
-                  text-xs font-medium
-                  transition-colors
+      dark:bg-gray-800
+    "
+    style={{
+      width: `calc((100% - 8px) / ${filters.length})`,
+      left: `calc(4px + ${
+        filters.indexOf(activeFilter)
+      } * ((100% - 8px) / ${filters.length}))`,
+    }}
+  />
 
-                  ${
-                    isActive
-                      ? `
-                          bg-white
-                          font-semibold
-                          text-black
-                          shadow-sm
+  {filters.map((filter) => {
+    const isActive =
+      activeFilter === filter;
 
-                          dark:bg-gray-800
-                          dark:text-white
-                        `
-                      : `
-                          text-gray-600
-                          hover:bg-gray-100
+    return (
+      <button
+        key={filter}
+        type="button"
+        onClick={() =>
+          handleFilterChange(filter)
+        }
+        className={`
+          relative z-10
+          flex-1 cursor-pointer
+          whitespace-nowrap
+          rounded-lg
+          px-3 py-2
+          text-xs font-medium
+          transition-colors
+          duration-300
 
-                          dark:text-gray-400
-                          dark:hover:bg-gray-800/60
-                        `
-                  }
-                `}
-              >
-                {filter === "All"
-                  ? "All order"
-                  : filter}
+          ${
+            isActive
+              ? `
+                  font-semibold
+                  text-black
 
-                {isActive && (
-                  <span className="ml-1 text-emerald-500">
-                    ({getFilterCount(filter)})
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                  dark:text-white
+                `
+              : `
+                  text-gray-600
+
+                  dark:text-gray-400
+                `
+          }
+        `}
+      >
+        {filter === "All"
+          ? "All orders"
+          : filter}
+
+        {isActive && (
+          <span className="ml-1 text-emerald-500">
+            ({getFilterCount(filter)})
+          </span>
+        )}
+      </button>
+    );
+  })}
+</div>
 
         {/* Actions */}
-
         <div className="flex w-full items-center gap-3 md:w-auto">
           {/* Search */}
-
           <div className="relative flex-1 md:w-64">
             <Search
               size={14}
@@ -426,7 +405,7 @@ const OrdersTable = () => {
               type="text"
               value={search}
               onChange={handleSearch}
-              placeholder="Search order report"
+              placeholder="Search orders"
               className="
                 w-full rounded-xl
                 border border-gray-200
@@ -513,12 +492,9 @@ const OrdersTable = () => {
         </div>
       </div>
 
-      {/* =====================
-          TABLE
-      ====================== */}
-
+      {/* TABLE */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] border-collapse text-left">
+        <table className="w-full min-w-[800px] border-collapse text-left">
           <thead>
             <tr
               className="
@@ -548,7 +524,7 @@ const OrdersTable = () => {
               </th>
 
               <th className="px-4 py-3 font-semibold">
-                Order Id
+                Order ID
               </th>
 
               <th className="px-4 py-3 font-semibold">
@@ -560,7 +536,7 @@ const OrdersTable = () => {
               </th>
 
               <th className="px-4 py-3 font-semibold">
-                Price
+                Total
               </th>
 
               <th className="px-4 py-3 font-semibold">
@@ -605,14 +581,26 @@ const OrdersTable = () => {
                     index +
                     1;
 
+                  const firstItem =
+                    order.items[0];
+
+                  const extraItems =
+                    order.items.length - 1;
+
                   const isPaid =
                     order.paymentStatus ===
-                    "Paid";
+                    "PAID";
 
                   return (
                     <tr
                       key={order.id}
+                      onClick={() =>
+                        navigate(
+                          `/orders/${order.id}`,
+                        )
+                      }
                       className="
+                        cursor-pointer
                         transition-colors
 
                         hover:bg-gray-50/50
@@ -621,8 +609,12 @@ const OrdersTable = () => {
                       "
                     >
                       {/* Checkbox */}
-
-                      <td className="px-4 py-3">
+                      <td
+                        className="px-4 py-3"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                      >
                         <input
                           type="checkbox"
                           className="
@@ -638,63 +630,85 @@ const OrdersTable = () => {
                       </td>
 
                       {/* Number */}
-
                       <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
                         {globalIndex}
                       </td>
 
                       {/* Order ID */}
-
                       <td className="px-4 py-3 text-xs font-bold text-gray-800 dark:text-gray-200">
-                        {order.id}
+                        {order.orderNumber}
                       </td>
 
                       {/* Product */}
-
                       <td className="px-4 py-3">
-                        <div className="flex min-w-[190px] items-center gap-3">
-                          <img
-                            src={order.image}
-                            alt={order.product}
+                        <div className="flex min-w-[200px] items-center gap-3">
+                          <div
                             className="
-                              h-8 w-8
-                              shrink-0 rounded-lg
+                              flex h-8 w-8
+                              shrink-0 items-center
+                              justify-center
+                              overflow-hidden rounded-lg
                               bg-gray-100
-                              object-cover
 
                               dark:bg-gray-800
                             "
-                          />
-
-                          <span
-                            className="
-                              max-w-[200px]
-                              truncate
-                              text-xs font-semibold
-                              text-gray-800
-
-                              dark:text-gray-200
-                            "
                           >
-                            {order.product}
-                          </span>
+                            {firstItem?.productImage ? (
+                              <img
+                                src={
+                                  firstItem.productImage
+                                }
+                                alt={
+                                  firstItem.productName
+                                }
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon
+                                size={14}
+                                className="text-gray-400"
+                              />
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <p
+                              className="
+                                max-w-[180px]
+                                truncate
+                                text-xs font-semibold
+                                text-gray-800
+
+                                dark:text-gray-200
+                              "
+                            >
+                              {firstItem
+                                ? firstItem.productName
+                                : "No products"}
+                            </p>
+
+                            {extraItems > 0 && (
+                              <p className="mt-0.5 text-[10px] text-gray-400 dark:text-gray-500">
+                                +{extraItems} more
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </td>
 
                       {/* Date */}
-
                       <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
-                        {order.date}
+                        {formatDate(
+                          order.createdAt,
+                        )}
                       </td>
 
-                      {/* Price */}
-
+                      {/* Total */}
                       <td className="whitespace-nowrap px-4 py-3 text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        ${order.price.toFixed(2)}
+                        {formatPrice(order.total)}
                       </td>
 
                       {/* Payment */}
-
                       <td className="px-4 py-3">
                         <span
                           className={`
@@ -733,7 +747,6 @@ const OrdersTable = () => {
                       </td>
 
                       {/* Status */}
-
                       <td className="px-4 py-3">
                         <span
                           className={`
@@ -748,7 +761,9 @@ const OrdersTable = () => {
                             )}
                           `}
                         >
-                          {order.status}
+                          {getStatusLabel(
+                            order.status,
+                          )}
                         </span>
                       </td>
                     </tr>
@@ -760,10 +775,7 @@ const OrdersTable = () => {
         </table>
       </div>
 
-      {/* =====================
-          PAGINATION
-      ====================== */}
-
+      {/* PAGINATION */}
       <div
         className="
           flex items-center justify-between
@@ -803,11 +815,8 @@ const OrdersTable = () => {
           "
         >
           <ChevronLeft size={14} />
-
           Previous
         </button>
-
-        {/* Page Numbers */}
 
         <div className="flex items-center gap-1">
           {Array.from(
@@ -885,7 +894,6 @@ const OrdersTable = () => {
           "
         >
           Next
-
           <ChevronRight size={14} />
         </button>
       </div>

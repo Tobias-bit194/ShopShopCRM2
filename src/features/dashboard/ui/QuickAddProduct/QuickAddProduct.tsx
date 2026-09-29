@@ -1,35 +1,27 @@
 import {
-  AppstoreAddOutlined,
   PlusOutlined,
   RightOutlined,
-  ShoppingOutlined,
-  TagsOutlined,
 } from "@ant-design/icons";
+
 import { Link } from "react-router-dom";
 
-const categories = [
-  {
-    name: "Electronics",
-    icon: <AppstoreAddOutlined />,
-  },
-  {
-    name: "Fashion",
-    icon: <ShoppingOutlined />,
-  },
-  {
-    name: "Home",
-    icon: <TagsOutlined />,
-  },
-];
+import type { QuickAddData } from "../../types/dashboard.types";
 
-const QuickAddProduct = () => {
+interface QuickAddProductProps {
+  data: QuickAddData;
+}
+
+const QuickAddProduct = ({
+  data,
+}: QuickAddProductProps) => {
   return (
     <section
       className="
         h-full rounded-2xl
         border border-[#EAECF0]
         bg-white p-6
-        dark:border-gray-800 dark:bg-gray-900
+        dark:border-gray-800
+        dark:bg-gray-900
       "
     >
       <div className="mb-6 flex items-center justify-between">
@@ -47,8 +39,10 @@ const QuickAddProduct = () => {
           to="/products"
           className="
             flex items-center gap-1
-            text-xs font-semibold text-[#3F9F6F]
-            transition hover:text-[#327F59]
+            text-xs font-semibold
+            text-[#3F9F6F]
+            transition
+            hover:text-[#327F59]
           "
         >
           <PlusOutlined />
@@ -56,15 +50,13 @@ const QuickAddProduct = () => {
         </Link>
       </div>
 
-      {/* Main action */}
       <Link
         to="/products"
         className="
           mb-6 flex items-center gap-4
           rounded-2xl
           bg-[#EAF7F0]
-          p-4
-          transition
+          p-4 transition
           hover:bg-[#DDF2E6]
 
           dark:bg-emerald-950/30
@@ -75,8 +67,7 @@ const QuickAddProduct = () => {
           className="
             flex h-11 w-11 shrink-0
             items-center justify-center
-            rounded-xl
-            bg-[#4CAF7A]
+            rounded-xl bg-[#4CAF7A]
             text-lg text-white
           "
         >
@@ -96,7 +87,6 @@ const QuickAddProduct = () => {
         <RightOutlined className="text-[#3F9F6F]" />
       </Link>
 
-      {/* Categories */}
       <div>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-medium text-[#98A2B3]">
@@ -112,50 +102,73 @@ const QuickAddProduct = () => {
         </div>
 
         <div className="space-y-2">
-          {categories.map((category) => (
-            <Link
-              key={category.name}
-              to="/categories"
-              className="
-                group flex items-center gap-3
-                rounded-xl
-                border border-[#F0F1F3]
-                p-3
-                transition
-                hover:border-[#DDE7E1]
-                hover:bg-[#F8FAF9]
-
-                dark:border-gray-800
-                dark:hover:bg-gray-800
-              "
-            >
-              <div
+          {data.categories
+            .slice(0, 4)
+            .map((category) => (
+              <Link
+                key={category.id}
+                to={`/categories/${category.id}`}
                 className="
-                  flex h-9 w-9 items-center justify-center
-                  rounded-lg
-                  bg-[#F2F7F4]
-                  text-[#43AE75]
+                  group flex items-center
+                  gap-3 rounded-xl
+                  border border-[#F0F1F3]
+                  p-3 transition
 
-                  dark:bg-gray-800
-                  dark:text-emerald-400
+                  hover:border-[#DDE7E1]
+                  hover:bg-[#F8FAF9]
+
+                  dark:border-gray-800
+                  dark:hover:bg-gray-800
                 "
               >
-                {category.icon}
-              </div>
+                <div
+                  className="
+                    flex h-9 w-9 shrink-0
+                    items-center justify-center
+                    overflow-hidden
+                    rounded-lg bg-[#F2F7F4]
 
-              <span className="flex-1 text-xs font-semibold text-[#344054] dark:text-gray-200">
-                {category.name}
-              </span>
+                    dark:bg-gray-800
+                  "
+                >
+                  {category.image ? (
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs font-bold text-[#43AE75]">
+                      {category.name
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  )}
+                </div>
 
-              <RightOutlined
-                className="
-                  text-[10px] text-[#98A2B3]
-                  transition-transform
-                  group-hover:translate-x-1
-                "
-              />
-            </Link>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold text-[#344054] dark:text-gray-200">
+                    {category.name}
+                  </span>
+
+                  <span className="mt-0.5 block text-[10px] text-[#98A2B3]">
+                    {
+                      category.productsCount
+                    }{" "}
+                    products
+                  </span>
+                </div>
+
+                <RightOutlined
+                  className="
+                    text-[10px]
+                    text-[#98A2B3]
+                    transition-transform
+                    group-hover:translate-x-1
+                  "
+                />
+              </Link>
+            ))}
         </div>
       </div>
     </section>

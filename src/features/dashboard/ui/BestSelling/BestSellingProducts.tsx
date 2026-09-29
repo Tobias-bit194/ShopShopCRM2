@@ -1,56 +1,58 @@
-import { FilterOutlined, ShoppingOutlined } from "@ant-design/icons";
+import {
+  FilterOutlined,
+  ShoppingOutlined,
+} from "@ant-design/icons";
+
 import { Link } from "react-router-dom";
 
-type ProductStatus = "Stock" | "Out of stock";
+import type { BestSellingProduct } from "../../types/dashboard.types";
 
-type BestSellingProduct = {
-  id: number;
-  name: string;
-  totalOrders: number;
-  status: ProductStatus;
-  price: string;
+interface BestSellingProductsProps {
+  products: BestSellingProduct[];
+}
+
+const formatPrice = (value: number) => {
+  return new Intl.NumberFormat("en-US").format(
+    value,
+  );
 };
 
-const products: BestSellingProduct[] = [
-  {
-    id: 1,
-    name: "Apple iPhone 13",
-    totalOrders: 104,
-    status: "Stock",
-    price: "$999.00",
-  },
-  {
-    id: 2,
-    name: "Nike Air Jordan",
-    totalOrders: 56,
-    status: "Out of stock",
-    price: "$72.40",
-  },
-  {
-    id: 3,
-    name: "T-shirt",
-    totalOrders: 266,
-    status: "Stock",
-    price: "$35.40",
-  },
-  {
-    id: 4,
-    name: "Cross Bag",
-    totalOrders: 506,
-    status: "Stock",
-    price: "$80.00",
-  },
-];
+const getStatusStyles = (status: string) => {
+  switch (status) {
+    case "Stock":
+      return `
+        bg-[#EAF7F0] text-[#3F9F6F]
+        dark:bg-emerald-950/40
+        dark:text-emerald-400
+      `;
 
-const statusStyles: Record<ProductStatus, string> = {
-  Stock:
-    "bg-[#EAF7F0] text-[#3F9F6F] dark:bg-emerald-950/40 dark:text-emerald-400",
+    case "Low":
+      return `
+        bg-amber-50 text-amber-600
+        dark:bg-amber-950/40
+        dark:text-amber-400
+      `;
 
-  "Out of stock":
-    "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400",
+    case "Stock out":
+    case "Out of stock":
+      return `
+        bg-red-50 text-red-500
+        dark:bg-red-950/40
+        dark:text-red-400
+      `;
+
+    default:
+      return `
+        bg-gray-100 text-gray-500
+        dark:bg-gray-800
+        dark:text-gray-400
+      `;
+  }
 };
 
-const BestSellingProducts = () => {
+const BestSellingProducts = ({
+  products,
+}: BestSellingProductsProps) => {
   return (
     <section
       className="
@@ -73,11 +75,13 @@ const BestSellingProducts = () => {
         <button
           type="button"
           className="
-            flex cursor-pointer items-center gap-2
-            rounded-lg bg-[#4CAF7A]
+            flex cursor-pointer items-center
+            gap-2 rounded-lg
+            bg-[#4CAF7A]
             px-4 py-2
-            text-xs font-semibold text-white
-            transition hover:bg-[#3F9F6F]
+            text-xs font-semibold
+            text-white transition
+            hover:bg-[#3F9F6F]
           "
         >
           <FilterOutlined />
@@ -92,7 +96,8 @@ const BestSellingProducts = () => {
               className="
                 bg-[#F2F7F4]
                 text-xs text-[#667085]
-                dark:bg-gray-800 dark:text-gray-400
+                dark:bg-gray-800
+                dark:text-gray-400
               "
             >
               <th className="rounded-l-lg px-4 py-3 font-semibold">
@@ -114,64 +119,104 @@ const BestSellingProducts = () => {
           </thead>
 
           <tbody>
-            {products.map((product) => (
-              <tr
-                key={product.id}
-                className="
-                  border-b border-[#F2F4F7]
-                  transition-colors
-                  last:border-none
-                  hover:bg-[#FAFBFA]
-                  dark:border-gray-800
-                  dark:hover:bg-gray-800/50
-                "
-              >
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="
-                        flex h-9 w-9 shrink-0
-                        items-center justify-center
-                        rounded-lg
-                        bg-[#EAF7F0]
-                        text-[#43AE75]
-                        dark:bg-emerald-950/40
-                        dark:text-emerald-400
-                      "
-                    >
-                      <ShoppingOutlined />
+            {products
+              .slice(0, 6)
+              .map((product) => (
+                <tr
+                  key={product.id}
+                  className="
+                    border-b border-[#F2F4F7]
+                    transition-colors
+                    last:border-none
+                    hover:bg-[#FAFBFA]
+
+                    dark:border-gray-800
+                    dark:hover:bg-gray-800/50
+                  "
+                >
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="
+                          flex h-9 w-9 shrink-0
+                          items-center justify-center
+                          overflow-hidden
+                          rounded-lg
+                          bg-[#EAF7F0]
+                          text-[#43AE75]
+
+                          dark:bg-emerald-950/40
+                          dark:text-emerald-400
+                        "
+                      >
+                        {product.image ? (
+                          <img
+                            src={
+                              product.image
+                            }
+                            alt={
+                              product.name
+                            }
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <ShoppingOutlined />
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <span className="block truncate text-xs font-semibold text-[#344054] dark:text-gray-200">
+                          {product.name}
+                        </span>
+
+                        <span className="mt-0.5 block text-[10px] text-[#98A2B3]">
+                          {product.sku}
+                        </span>
+                      </div>
                     </div>
+                  </td>
 
-                    <span className="text-xs font-semibold text-[#344054] dark:text-gray-200">
-                      {product.name}
+                  <td className="px-4 py-4 text-xs font-medium text-[#667085] dark:text-gray-400">
+                    {product.totalOrders}
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <span
+                      className={`
+                        inline-flex
+                        items-center gap-1.5
+                        rounded-full
+                        px-2.5 py-1
+                        text-xs font-semibold
+                        ${getStatusStyles(
+                          product.status,
+                        )}
+                      `}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+
+                      {product.status}
                     </span>
-                  </div>
-                </td>
+                  </td>
 
-                <td className="px-4 py-4 text-xs font-medium text-[#667085] dark:text-gray-400">
-                  {product.totalOrders}
-                </td>
+                  <td className="px-4 py-4 text-xs font-bold text-[#1D2939] dark:text-white">
+                    {formatPrice(
+                      product.price,
+                    )}
+                  </td>
+                </tr>
+              ))}
 
-                <td className="px-4 py-4">
-                  <span
-                    className={`
-                      inline-flex items-center gap-1.5
-                      rounded-full px-2.5 py-1
-                      text-xs font-semibold
-                      ${statusStyles[product.status]}
-                    `}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-
-                    {product.status}
-                  </span>
-                </td>
-
-                <td className="px-4 py-4 text-xs font-bold text-[#1D2939] dark:text-white">
-                  {product.price}
+            {products.length === 0 && (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="py-10 text-center text-xs text-[#98A2B3]"
+                >
+                  No products found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -180,11 +225,14 @@ const BestSellingProducts = () => {
         <Link
           to="/products"
           className="
-            rounded-full border border-[#4CAF7A]
+            rounded-full
+            border border-[#4CAF7A]
             px-5 py-2
-            text-xs font-semibold text-[#3F9F6F]
+            text-xs font-semibold
+            text-[#3F9F6F]
             transition
             hover:bg-[#EAF7F0]
+
             dark:text-emerald-400
             dark:hover:bg-emerald-950/30
           "

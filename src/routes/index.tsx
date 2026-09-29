@@ -23,6 +23,7 @@ import BrandsPage from "../features/brands/pages/BrandsPage";
 import BrandDetailsPage from "../features/brands/pages/BrandDetailsPage";
 
 import BannersPage from "../features/banners/pages/BannersPage";
+import OrderDetailsPage from "../features/orders/pages/OrderDetailsPage";
 
 const router = createBrowserRouter([
   // Auth
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <OrdersPage />,
+      },
+      {
+        path: "orders/:id",
+        element: <OrderDetailsPage />,
       },
 
       // Brands

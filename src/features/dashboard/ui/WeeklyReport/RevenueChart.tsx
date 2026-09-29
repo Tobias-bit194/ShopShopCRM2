@@ -1,24 +1,54 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
-const series = [
-  {
-    name: "Revenue",
-    data: [15000, 22000, 19000, 31000, 42000, 25000, 28000],
-  },
-];
+import type { WeeklyChartItem } from "../../types/dashboard.types";
 
-const RevenueChart = () => {
+interface RevenueChartProps {
+  data: WeeklyChartItem[];
+}
+
+const RevenueChart = ({
+  data,
+}: RevenueChartProps) => {
+  const values = data.map(
+    (item) => item.revenue,
+  );
+
+  const maxValue = Math.max(
+    ...values,
+    0,
+  );
+
+  const yAxisMax =
+    maxValue > 0
+      ? Math.ceil(maxValue * 1.2)
+      : 100;
+
+  const series = [
+    {
+      name: "Revenue",
+      data: values,
+    },
+  ];
+
   const options: ApexOptions = {
     chart: {
       type: "area",
       height: 280,
+
       toolbar: {
         show: false,
       },
+
       zoom: {
         enabled: false,
       },
+
+      animations: {
+        enabled: true,
+        speed: 500,
+      },
+
       background: "transparent",
       fontFamily: "inherit",
     },
@@ -36,6 +66,7 @@ const RevenueChart = () => {
 
     fill: {
       type: "gradient",
+
       gradient: {
         shadeIntensity: 1,
         opacityFrom: 0.35,
@@ -45,7 +76,9 @@ const RevenueChart = () => {
     },
 
     xaxis: {
-      categories: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      categories: data.map(
+        (item) => item.day,
+      ),
 
       axisBorder: {
         show: false,
@@ -65,11 +98,15 @@ const RevenueChart = () => {
 
     yaxis: {
       min: 0,
-      max: 50000,
+      max: yAxisMax,
       tickAmount: 5,
 
       labels: {
-        formatter: (value) => `${value / 1000}k`,
+        formatter: (value) =>
+          new Intl.NumberFormat("en-US", {
+            notation: "compact",
+            maximumFractionDigits: 1,
+          }).format(value),
 
         style: {
           colors: "#98A2B3",
@@ -85,6 +122,13 @@ const RevenueChart = () => {
 
     tooltip: {
       theme: "light",
+
+      y: {
+        formatter: (value) =>
+          new Intl.NumberFormat(
+            "en-US",
+          ).format(value),
+      },
     },
 
     legend: {
