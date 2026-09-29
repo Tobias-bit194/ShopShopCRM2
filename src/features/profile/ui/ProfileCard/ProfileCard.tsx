@@ -1,6 +1,5 @@
 import {
   Copy,
-  Edit3,
   PlusCircle,
   Share2,
 } from "lucide-react";
@@ -9,6 +8,46 @@ import useAdminProfile from "../../hooks/useAdminProfile";
 
 const ProfileCard = () => {
   const { profile, isLoading } = useAdminProfile();
+
+  const fullName = profile
+    ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim()
+    : "Admin";
+
+  const handleCopyEmail = async () => {
+    if (!profile?.email) return;
+
+    try {
+      await navigator.clipboard.writeText(profile.email);
+    } catch (error) {
+      console.error("Failed to copy email:", error);
+    }
+  };
+
+  const handleShareProfile = async () => {
+    if (!profile) return;
+
+    const shareData = {
+      title: fullName,
+      text: `${fullName} — ${profile.role?.replaceAll("_", " ") ?? "ADMIN"}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+      }
+    } catch (error) {
+      console.error("Failed to share profile:", error);
+    }
+  };
+
+  const avatarLetter =
+    profile?.firstName?.charAt(0)?.toUpperCase() ?? "A";
+
+  const role =
+    profile?.role?.replaceAll("_", " ") ?? "ADMIN";
 
   return (
     <div
@@ -29,25 +68,9 @@ const ProfileCard = () => {
         <div className="flex items-center gap-1 text-[#98A2B3]">
           <button
             type="button"
-            title="Edit profile"
-            className="
-              flex h-8 w-8 cursor-pointer
-              items-center justify-center
-              rounded-lg
-              transition
-              hover:bg-[#F5F7F9]
-              hover:text-[#344054]
-
-              dark:hover:bg-gray-800
-              dark:hover:text-gray-200
-            "
-          >
-            {/* <Edit3 size={16} /> */}
-          </button>
-
-          <button
-            type="button"
             title="Share profile"
+            onClick={handleShareProfile}
+            disabled={!profile}
             className="
               flex h-8 w-8 cursor-pointer
               items-center justify-center
@@ -55,6 +78,8 @@ const ProfileCard = () => {
               transition
               hover:bg-[#F5F7F9]
               hover:text-[#344054]
+              disabled:cursor-not-allowed
+              disabled:opacity-50
 
               dark:hover:bg-gray-800
               dark:hover:text-gray-200
@@ -71,7 +96,7 @@ const ProfileCard = () => {
         {profile?.avatar ? (
           <img
             src={profile.avatar}
-            alt={`${profile.firstName} ${profile.lastName}`}
+            alt={fullName}
             className="
               mb-3 h-20 w-20
               rounded-full
@@ -94,39 +119,38 @@ const ProfileCard = () => {
               dark:text-emerald-400
             "
           >
-            {profile?.firstName?.[0] ?? "A"}
+            {avatarLetter}
           </div>
         )}
 
         {/* Name */}
         <h4 className="text-base font-bold text-[#344054] dark:text-gray-100">
-          {isLoading
-            ? "Loading..."
-            : profile
-              ? `${profile.firstName} ${profile.lastName}`
-              : "Admin"}
+          {isLoading ? "Loading..." : fullName}
         </h4>
 
         {/* Email */}
         <div className="mt-1 flex items-center gap-1.5">
           <span className="text-xs text-[#98A2B3]">
-            {profile?.email ?? "—"}
+            {isLoading ? "Loading..." : profile?.email ?? "—"}
           </span>
 
-          <button
-            type="button"
-            title="Copy email"
-            className="
-              cursor-pointer
-              text-[#98A2B3]
-              transition
-              hover:text-[#667085]
+          {profile?.email && (
+            <button
+              type="button"
+              title="Copy email"
+              onClick={handleCopyEmail}
+              className="
+                cursor-pointer
+                text-[#98A2B3]
+                transition
+                hover:text-[#667085]
 
-              dark:hover:text-gray-300
-            "
-          >
-            <Copy size={13} />
-          </button>
+                dark:hover:text-gray-300
+              "
+            >
+              <Copy size={13} />
+            </button>
+          )}
         </div>
 
         {/* Role */}
@@ -142,7 +166,7 @@ const ProfileCard = () => {
             dark:text-emerald-400
           "
         >
-          {profile?.role?.replaceAll("_", " ") ?? "ADMIN"}
+          {role}
         </span>
 
         {/* Social media */}
